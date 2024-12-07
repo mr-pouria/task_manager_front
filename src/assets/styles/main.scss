@@ -1,0 +1,51 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  font-family: 'irsans-regular';
+}
+
+li {
+  list-style: none;
+}
+
+body {
+  direction: rtl;
+  background: #f4f4f4;
+}
+
+
+h1,h2,h3,h4,h5,h6 {
+  font-weight: unset;
+}
+
+@font-face {
+  font-family: 'irsans-regular';
+  src: url('~@/assets/fonts/IRANSansXFaNum-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'irsans-light';
+  src: url('~@/assets/fonts/IRANSansXFaNum-Light.ttf');
+}
+
+@font-face {
+  font-family: 'irsans-bold';
+  src: url('~@/assets/fonts/IRANSansXFaNum-Bold.ttf');
+}
+
+
+@font-face {
+  font-family: 'irsans-demiBold';
+  src: url('~@/assets/fonts/IRANSansXFaNum-DemiBold.ttf');
+}
+
+
+:root {
+ --primary : #00A6FB;
+ --lightTextColor:#3d3d3d;
+ --baseColor: #f4f4f4;
+ --lod: #ffffff;
+ --lodReversed: #000000;
+}
