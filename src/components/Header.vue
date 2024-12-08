@@ -25,6 +25,8 @@ export default {
         <ul>
           <li>درخواست</li>
           <li>قابلیت ها</li>
+          <li>مشاوره</li>
+          <li>ارتباط باما</li>
         </ul>
       </div>
       <div class="head-box">
@@ -43,8 +45,8 @@ export default {
   border-radius: 6px;
   &__container {
     display: flex;
-    justify-content: space-between;
     .head-box:first-child {
+      justify-content: start;
 
       .logo {
         display: flex;
@@ -52,31 +54,33 @@ export default {
         justify-content: center;
 
         span {
-          display: block;
+          display: flex;
           width: 40px;
         }
       }
 
       .header-text {
+        margin-right: 20px;
         h1 {
           color: var(--lodReversed);
           font-family: 'irsans-bold';
-          font-size: 1.6em;
+          font-size: 1.3em;
           text-align: center;
         }
 
         h2 {
           color: var(--lightTextColor);
           font-family: 'irsans-regular';
-          font-size: 0.6em;
+          font-size: 0.5em;
           text-align: center;
         }
       }
     }
     .head-box {
-      gap: 20px;
+      flex: 1;
       display: flex;
       align-items: center;
+      justify-content: center;
       ul {
         display: flex;
         gap: 30px;
@@ -84,6 +88,7 @@ export default {
           color: var(--lodReversed);
           cursor: pointer;
           font-family: 'irsans-demiBold';
+          font-size: 0.8em;
         }
       }
       button {
@@ -95,6 +100,9 @@ export default {
         background: var(--primary);
         color: var(--lod);
       }
+    }
+    .head-box:last-child {
+      justify-content: end;
     }
   }
 }
