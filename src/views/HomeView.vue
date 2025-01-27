@@ -2,9 +2,11 @@
 
 import Header from "@/components/Header.vue";
 import HomeIntroduction from "@/components/HomeIntroduction.vue";
+import Features from "@/components/Features.vue";
 export default {
   name: "HomeView",
   components:{
+    Features,
     HomeIntroduction,
     Header,
   }
@@ -15,6 +17,7 @@ export default {
   <div class="outer">
     <Header/>
     <HomeIntroduction :heightEffect="123"/>
+    <Features/>
   </div>
 </template>
 

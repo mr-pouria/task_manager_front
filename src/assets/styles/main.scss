@@ -4,6 +4,7 @@
   padding: 0;
   outline: none;
   font-family: 'irsans-regular';
+  text-decoration: none;
 }
 
 li {
@@ -12,7 +13,7 @@ li {
 
 body {
   direction: rtl;
-  background: #f4f4f4;
+  background: var(--baseColor);
 }
 
 
@@ -43,7 +44,7 @@ h1,h2,h3,h4,h5,h6 {
 
 
 :root {
- --primary : #00A6FB;
+ --primary : #00a6fb;
  --lightTextColor:#3d3d3d;
  --baseColor: #f4f4f4;
  --lod: #ffffff;

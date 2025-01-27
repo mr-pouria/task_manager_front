@@ -89,6 +89,12 @@ section {
         font-size: 0.8em;
         cursor: pointer;
         border-radius: 5px;
+        z-index: 1;
+        overflow: hidden;
+        transition: all 0.2s ease-in-out;
+        &:hover {
+          scale: 1.035;
+        }
         span {
           position: absolute;
           width: 20px;
@@ -126,7 +132,7 @@ section {
       flex: 1;
       background: #3d3d3d;
       height: 100%;
-      width: 60%;
+      width: 80%;
       margin: auto;
       border-radius: 5px;
     }
