@@ -1,53 +1,83 @@
 <script>
+import SidebarSubMenu from "@/components/SidebarSubMenu.vue";
 import {useStore} from "@/pinia";
 
 export default {
   name: "DashboardSidebar",
   props: ['headerSize'],
+  components: {
+    SidebarSubMenu
+  },
+  methods: {
+    hide() {
+      if (this.store.sidebarKey && !this.store.sidebarPinned) {
+        this.store.sidebarKey = false
+        this.subMenuData.currentIndex = -1
+      }
+    }
+  },
+  data() {
+    return {
+      subMenuData: {
+        allData:[
+            {
+              data: [{title: "سرویس های فعال", path: '/dashboard'}, {
+                title: "سرویس های درحال انقضا",
+                path: '/dashboard'
+              }, {title: "تمامی سرویس ها", path: '/dashboard'}]
 
-  methods: {},
+            },
+    {
+      data: [{title: "تیکت های جاری", path: '/dashboard'}, {title: "تمامی تیکت ها", path: '/dashboard'}]
+    }
+  ,
+    {
+      data: []
+    }
+  ],
+        currentIndex: -1,
+  }
+    }
+  },
   setup() {
     const store = useStore()
     return {store}
+  },
+  watch: {
+    subMenuData: {
+      deep: true,
+      handler: function (newValue, oldValue) {
+        console.log(newValue, oldValue)
+        for (let i = 0; i < oldValue.length; i++) {
+
+          if (oldValue[i].key) {
+            // console.log(oldValue[i].key)
+          }
+        }
+
+
+      }
+
+    }
   }
+
 }
 </script>
 
 <template>
+
+  <div class="dock" @click.stop="store.sidebarKey = !store.sidebarKey;store.sidebarPinned = !store.sidebarPinned"
+       :class="{'active' : store.sidebarPinned,'rotated':store.sidebarPinned}">
+    <span>
+      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path
+          d="M400-80 0-480l400-400 71 71-329 329 329 329-71 71Z"/></svg>
+    </span>
+  </div>
   <aside :style="{height:`calc(100vh - ${headerSize}px)`}"
          :class="{'active':store.sidebarKey,'pinned':store.sidebarPinned}"
-         v-click-outside="(()=>{if(store.sidebarKey && !store.sidebarPinned){store.sidebarKey=false}})"
+         v-click-outside="hide"
   >
 
-    <span class="dock" @click.stop="store.sidebarPinned = true" v-if="!store.sidebarPinned">
-   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-layout-sidebar-right-expand" width="24"
-        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="white" fill="none" stroke-linecap="round"
-        stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-  <rect x="4" y="4" width="16" height="16" rx="2"/>
-  <path d="M15 4v16"/>
-  <path d="M10 10l-2 2l2 2"/>
-</svg>
-
-
-
-        </span>
-    <span class="dock" @click.stop="store.sidebarPinned = false" v-if="store.sidebarPinned">
-   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-layout-sidebar-right-collapse" width="24"
-        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="white" fill="none" stroke-linecap="round"
-        stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-  <rect x="4" y="4" width="16" height="16" rx="2"/>
-  <path d="M15 4v16"/>
-  <path d="M9 10l2 2l-2 2"/>
-</svg>
-
-
-
-
-
-
-        </span>
 
     <h5><span></span>
       سرویس ها
@@ -55,7 +85,7 @@ export default {
     <ul>
 
       <li>
-        <router-link to="/">
+        <div class="combo" @click.stop="subMenuData.currentIndex = 1">
           <span>
             <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22.87 23.03">
   <g id="Layer_1-2" data-name="Layer 1">
@@ -81,7 +111,8 @@ export default {
   </g>
 </svg>
           </span>
-        </router-link>
+        </div>
+        <SidebarSubMenu :data="subMenuData.allData[0]" :current="subMenuData.currentIndex" v-if="subMenuData.currentIndex === 1 && (store.sidebarKey || store.sidebarPinned)"/>
       </li>
       <li>
         <router-link to="/">
@@ -100,8 +131,8 @@ export default {
       <span></span></h5>
     <ul class="lastLevel">
       <li>
-        <router-link to="/dashboard">
-                 <span>
+        <div class="combo" @click.stop="subMenuData.currentIndex = 2">
+          <span>
           <svg id="b" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 27.16 27.16">
     <g id="c">
         <path
@@ -120,10 +151,12 @@ export default {
   </g>
 </svg>
           </span>
-        </router-link>
+        </div>
+        <SidebarSubMenu :data="subMenuData.allData[1]" :current="subMenuData" v-if="subMenuData.currentIndex === 2 && (store.sidebarKey || store.sidebarPinned)"/>
+
       </li>
       <li>
-        <router-link to="/">
+        <div class="combo">
           <span>
            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#3d3d3dx"><path
                d="M384-144H216q-29.7 0-50.85-21.15Q144-186.3 144-216v-168q40-2 68-29.5t28-66.5q0-39-28-66.5T144-576v-168q0-29.7 21.15-50.85Q186.3-816 216-816h168q0-40 27.77-68 27.78-28 68-28Q520-912 548-884.16q28 27.84 28 68.16h168q29.7 0 50.85 21.15Q816-773.7 816-744v168q40 0 68 27.77 28 27.78 28 68Q912-440 884.16-412q-27.84 28-68.16 28v168q0 29.7-21.15 50.85Q773.7-144 744-144H576q-2-40-29.38-68t-66.5-28q-39.12 0-66.62 28-27.5 28-29.5 68Zm-168-72h112q20-45 61.5-70.5T480-312q49 0 90.5 25.5T632-216h112v-240h72q9.6 0 16.8-7.2 7.2-7.2 7.2-16.8 0-9.6-7.2-16.8-7.2-7.2-16.8-7.2h-72v-240H504v-72q0-9.6-7.2-16.8-7.2-7.2-16.8-7.2-9.6 0-16.8 7.2-7.2 7.2-7.2 16.8v72H216v112q45 20 70.5 61.5T312-480q0 50.21-25.5 91.6Q261-347 216-328v112Zm264-264Z"/></svg>
@@ -137,7 +170,7 @@ export default {
   </g>
 </svg>
           </span>
-        </router-link>
+        </div>
       </li>
       <li>
         <router-link to="/">
@@ -155,7 +188,6 @@ export default {
         </router-link>
       </li>
     </ul>
-
     <ul>
       <li>
         <router-link to="/">
@@ -181,32 +213,53 @@ export default {
 </template>
 
 <style scoped lang="scss">
+.dock {
+  position: absolute;
+  top: 50%;
+  width: 15px;
+  height: 60px;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+
+  &.active {
+    transform: translateX(-220px);
+  }
+
+  &.rotated {
+    span {
+      rotate: 180deg;
+      margin-left: 0;
+      margin-right: 8px;
+    }
+  }
+
+  span {
+    transition: all 0.3s ease-in-out;
+    margin-left: 8px;
+    width: 100%;
+    display: flex;
+  }
+}
 
 aside {
   user-select: none;
   position: absolute;
   background: var(--lod);
+  min-width: 0;
   width: 0;
   opacity: 0;
-  transition: all 0.4s ease-in-out;
+  transition: all 0.2s ease-in-out;
   white-space: nowrap;
   display: flex;
   flex-direction: column;
   box-shadow: -1px 1px 2px 0 rgba(0, 0, 0, 0.2);
-
-  .dock {
-    height: 30px;
-    width: 30px;
-    border-radius: 5px;
-    margin-right: auto;
-    margin-left: 17px;
-    margin-top: 20px;
-    background: var(--primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
+  visibility: hidden;
 
   h5 {
     margin: 20px 15px 20px 20px;
@@ -238,20 +291,15 @@ aside {
     position: relative;
   }
 
-  &:hover {
-    .dock {
-      visibility: visible;
-      opacity: 1;
-    }
-  }
 
   &.active {
+    min-width: 220px;
     width: 220px;
     opacity: 1;
+    visibility: visible;
   }
 
   ul {
-    overflow: hidden;
 
     &.lastLevel {
       flex: 1;
@@ -260,16 +308,20 @@ aside {
     }
 
     li {
+      position: relative;
+
       &:first-child {
-        a {
+        a, .combo {
           padding-top: 0;
         }
       }
 
-      a {
+      a, .combo {
         display: flex;
         align-items: center;
         padding: 12px 22px;
+        cursor: pointer;
+        overflow: hidden;
 
         span:has(svg) {
           min-width: 18px;
@@ -282,6 +334,7 @@ aside {
         span {
           font-size: 0.7em;
           color: var(--lightTextColor);
+
           &:has(svg):last-child {
             rotate: 90deg;
           }

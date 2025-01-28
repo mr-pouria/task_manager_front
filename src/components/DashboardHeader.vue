@@ -1,28 +1,10 @@
-<script>
-import {useStore} from "@/pinia";
 
-export default {
-  name: "DashboardHeader",
-  mounted() {
-    this.getHeaderHeight()
-  },
-  setup() {
-    const store = useStore()
-    return {store}
-  },
-  methods: {
-    getHeaderHeight() {
-      return this.$emit("header-size", document.querySelector('header').offsetHeight)
-    }
-  }
-}
-</script>
 
 <template>
   <header>
     <div class="side">
       <div class="item" @click.stop="store.sidebarKey = !store.sidebarKey;store.sidebarPinned = false;"
-           :class="{'active': store.sidebarKey}">
+           :class="{'active': store.sidebarKey && !store.sidebarPinned}">
         <span class="hamb"></span>
         <span class="hamb"></span>
         <span class="hamb"></span>
@@ -70,6 +52,27 @@ export default {
     </div>
   </header>
 </template>
+
+<script>
+import {useStore} from "@/pinia";
+
+export default {
+  name: "DashboardHeader",
+  mounted() {
+    this.getHeaderHeight()
+  },
+  setup() {
+    const store = useStore()
+    return {store}
+  },
+  methods: {
+    getHeaderHeight() {
+      return this.$emit("header-size", document.querySelector('header').offsetHeight)
+    }
+  }
+}
+</script>
+
 
 <style scoped lang="scss">
 header {
