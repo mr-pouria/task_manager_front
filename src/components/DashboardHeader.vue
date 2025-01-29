@@ -1,37 +1,41 @@
-<script>
-import {useStore} from "@/pinia";
-
-export default {
-  name: "DashboardHeader",
-  mounted() {
-    this.getHeaderHeight()
-  },
-  setup() {
-    const store = useStore()
-    return {store}
-  },
-  methods: {
-    getHeaderHeight() {
-      return this.$emit("header-size", document.querySelector('header').offsetHeight)
-    }
-  }
-}
-</script>
-
 <template>
   <header>
     <div class="side">
       <div class="item" @click.stop="store.sidebarKey = !store.sidebarKey;store.sidebarPinned = false;"
-           :class="{'active': store.sidebarKey}">
+           :class="{'active': store.sidebarKey && !store.sidebarPinned}">
         <span class="hamb"></span>
         <span class="hamb"></span>
         <span class="hamb"></span>
       </div>
-
     </div>
     <div class="side">
       <div class="item ld">
-
+        <button @click="switchToDarkMode()"
+                id="switchToDarkMode"
+                class="theme-toggle "
+                type="button"
+                title="Toggle theme"
+                aria-label="Toggle theme"
+        >
+          <svg
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              width="1em"
+              height="1em"
+              fill="currentColor"
+              class="theme-toggle__expand"
+              viewBox="0 0 32 32"
+          >
+            <clipPath id="theme-toggle__expand__cutout">
+              <path d="M0-11h25a1 1 0 0017 13v30H0Z"/>
+            </clipPath>
+            <g clip-path="url(#theme-toggle__expand__cutout)">
+              <circle cx="16" cy="16" r="8.4"/>
+              <path
+                  d="M18.3 3.2c0 1.3-1 2.3-2.3 2.3s-2.3-1-2.3-2.3S14.7.9 16 .9s2.3 1 2.3 2.3zm-4.6 25.6c0-1.3 1-2.3 2.3-2.3s2.3 1 2.3 2.3-1 2.3-2.3 2.3-2.3-1-2.3-2.3zm15.1-10.5c-1.3 0-2.3-1-2.3-2.3s1-2.3 2.3-2.3 2.3 1 2.3 2.3-1 2.3-2.3 2.3zM3.2 13.7c1.3 0 2.3 1 2.3 2.3s-1 2.3-2.3 2.3S.9 17.3.9 16s1-2.3 2.3-2.3zm5.8-7C9 7.9 7.9 9 6.7 9S4.4 8 4.4 6.7s1-2.3 2.3-2.3S9 5.4 9 6.7zm16.3 21c-1.3 0-2.3-1-2.3-2.3s1-2.3 2.3-2.3 2.3 1 2.3 2.3-1 2.3-2.3 2.3zm2.4-21c0 1.3-1 2.3-2.3 2.3S23 7.9 23 6.7s1-2.3 2.3-2.3 2.4 1 2.4 2.3zM6.7 23C8 23 9 24 9 25.3s-1 2.3-2.3 2.3-2.3-1-2.3-2.3 1-2.3 2.3-2.3z"/>
+            </g>
+          </svg>
+        </button>
       </div>
       <div class="item">
         <span>
@@ -70,11 +74,42 @@ export default {
         </span>
         <span class="txt">آقای فلانی</span>
       </div>
+
     </div>
   </header>
 </template>
 
+<script>
+import {useStore} from "@/pinia";
+
+export default {
+  name: "DashboardHeader",
+  mounted() {
+    this.getHeaderHeight()
+    const switchToDarkMode = document.getElementById("switchToDarkMode")
+    localStorage.getItem("theme") === "dark" ? switchToDarkMode.classList.remove("theme-toggle--toggled") : switchToDarkMode.classList.add("theme-toggle--toggled")
+  },
+  setup() {
+    const store = useStore()
+    return {store}
+  },
+  methods: {
+    getHeaderHeight() {
+      return this.$emit("header-size", document.querySelector('header').offsetHeight)
+    },
+    switchToDarkMode() {
+      this.store.darkModeHandler()
+      const switchToDarkMode = document.getElementById("switchToDarkMode")
+      localStorage.getItem("theme") === "dark" ? switchToDarkMode.classList.remove("theme-toggle--toggled") : switchToDarkMode.classList.add("theme-toggle--toggled")
+    }
+  }
+}
+</script>
+
+
 <style scoped lang="scss">
+@import "src/assets/styles/toggleDarkModeIcon";
+
 header {
   position: relative;
   z-index: 3;
@@ -82,7 +117,7 @@ header {
   width: 100%;
   display: flex;
   align-items: center;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 2px 0 var(--boxShadow);
 
   .side {
     width: 50%;
@@ -129,7 +164,7 @@ header {
         margin-bottom: 3px;
         width: 20px;
         height: 0.7mm;
-        background: #3d3d3d;
+        background: var(--lodReversed);
         border-radius: 10px;
         transition: all 0.2s ease-in-out;
       }
@@ -139,6 +174,17 @@ header {
       display: flex;
       gap: 10px;
       position: relative;
+
+      button {
+        width: 20px;
+        height: 20px;
+
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+      }
+
       &.ld span {
         width: max-content;
       }
@@ -153,6 +199,7 @@ header {
       span.txt {
         width: max-content;
         font-size: 0.8em;
+        color: var(--lightTextColor);
       }
 
       span.badge {
@@ -168,7 +215,10 @@ header {
         top: -3px;
         right: -3px;
         font-size: 0.7em;
-        color: var(--baseColor);
+        color: #fff;
+      }
+      svg {
+        fill: var(--lightTextColor);
       }
     }
 

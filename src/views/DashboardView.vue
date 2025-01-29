@@ -54,7 +54,7 @@ export default {
         width: 100%;
         margin: 20px;
         background: var(--lod);
-        border-radius: 10px;
+        border-radius: 5px;
       }
     }
   }

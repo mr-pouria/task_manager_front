@@ -1,61 +1,98 @@
 <script>
+import SidebarSubMenu from "@/components/SidebarSubMenu.vue";
 import {useStore} from "@/pinia";
 
 export default {
   name: "DashboardSidebar",
   props: ['headerSize'],
+  components: {
+    SidebarSubMenu
+  },
+  methods: {
+    hide() {
+      if (this.store.sidebarKey && !this.store.sidebarPinned) {
+        this.store.sidebarKey = false
+        this.subMenuEvent(null, -1)
+      }
+    },
+    nestedArrayLoop(data) {
+      data.forEach(item => {
+        if (item.nested) {
+          item.nestedKey = false;
+          this.nestedArrayLoop(item.nested.data);
+        } else if (Array.isArray(item)) {
+          this.nestedArrayLoop(item);
+        }
+      });
+    },
+    subMenuEvent(param, index) {
+      this.subMenuData.forEach((itm, indx) => {
+        if (indx !== index) {
+          itm.key = false
+        }
+      })
+      if (param !== null) {
+        param.key = !param.key
+      }
+      if (index !== -1) {
+        this.nestedArrayLoop(this.subMenuData[index].data)
+      }
+    }
+  },
+  data() {
+    return {
+      subMenuData: [
 
-  methods: {},
+        {
+          data: [
+            {
+              title: "سرویس های فعال", path: '/dashboard', key: false
+            },
+            {
+              title: "سرویس های درحال انقضا", path: '/dashboard', key: false
+            },
+            {title: "تمامی سرویس ها", path: '/dashboard', key: false}
+          ]
+        },
+        {
+          data: [{title:"ثبت تیکت جدید" , path: "/dashboard" , key: false},
+            {
+              title: "تیکت های جاری", path: '/dashboard', key: false
+            },
+            {title: "تمامی تیکت ها", path: '/dashboard', key: false}
+          ]
+        },
+        {
+          data: []
+        }
+
+      ]
+    }
+  },
   setup() {
     const store = useStore()
     return {store}
   }
+
 }
 </script>
 
 <template>
+
+
   <aside :style="{height:`calc(100vh - ${headerSize}px)`}"
          :class="{'active':store.sidebarKey,'pinned':store.sidebarPinned}"
-         v-click-outside="(()=>{if(store.sidebarKey && !store.sidebarPinned){store.sidebarKey=false}})"
+         v-click-outside="hide"
   >
 
-    <span class="dock" @click.stop="store.sidebarPinned = true" v-if="!store.sidebarPinned">
-   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-layout-sidebar-right-expand" width="24"
-        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="white" fill="none" stroke-linecap="round"
-        stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-  <rect x="4" y="4" width="16" height="16" rx="2"/>
-  <path d="M15 4v16"/>
-  <path d="M10 10l-2 2l2 2"/>
-</svg>
-
-
-
-        </span>
-    <span class="dock" @click.stop="store.sidebarPinned = false" v-if="store.sidebarPinned">
-   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-layout-sidebar-right-collapse" width="24"
-        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="white" fill="none" stroke-linecap="round"
-        stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-  <rect x="4" y="4" width="16" height="16" rx="2"/>
-  <path d="M15 4v16"/>
-  <path d="M9 10l2 2l-2 2"/>
-</svg>
-
-
-
-
-
-
-        </span>
 
     <h5><span></span>
       سرویس ها
       <span></span></h5>
     <ul>
-
       <li>
-        <router-link to="/">
+        <div class="combo" @click.stop="subMenuEvent(subMenuData[0] , 0)"
+             :style="{opacity:subMenuData[0].data.length > 0 ? '1' : '0.5', cursor : subMenuData[0].data.length > 0 ? 'pointer' : 'default'}">
           <span>
             <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22.87 23.03">
   <g id="Layer_1-2" data-name="Layer 1">
@@ -73,7 +110,7 @@ export default {
 </svg>
           </span>
           <span class="txt">سرویس های من</span>
-          <span>
+          <span v-if="subMenuData[0].data.length > 0">
             <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17.84 9.67">
   <g id="Layer_1-2" data-name="Layer 1">
     <polyline points="17.09 .75 8.92 8.92 .75 .75"
@@ -81,7 +118,11 @@ export default {
   </g>
 </svg>
           </span>
-        </router-link>
+        </div>
+        <Transition>
+          <SidebarSubMenu :data="subMenuData[0]"
+                          v-if="subMenuData[0].key && (store.sidebarKey || store.sidebarPinned)"/>
+        </Transition>
       </li>
       <li>
         <router-link to="/">
@@ -100,8 +141,9 @@ export default {
       <span></span></h5>
     <ul class="lastLevel">
       <li>
-        <router-link to="/dashboard">
-                 <span>
+        <div class="combo" @click.stop="subMenuEvent(subMenuData[1] , 1)"
+             :style="{opacity:subMenuData[1].data.length > 0 ? '1' : '0.5', cursor : subMenuData[1].data.length > 0 ? 'pointer' : 'default'}">
+          <span>
           <svg id="b" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 27.16 27.16">
     <g id="c">
         <path
@@ -112,7 +154,7 @@ export default {
 </svg>
         </span>
           <span class="txt">تیکت ها</span>
-          <span>
+          <span v-if="subMenuData[1].data.length > 0">
             <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17.84 9.67">
   <g id="Layer_1-2" data-name="Layer 1">
     <polyline points="17.09 .75 8.92 8.92 .75 .75"
@@ -120,16 +162,22 @@ export default {
   </g>
 </svg>
           </span>
-        </router-link>
+        </div>
+        <Transition>
+          <SidebarSubMenu :data="subMenuData[1]"
+                          v-if="subMenuData[1].key && (store.sidebarKey || store.sidebarPinned)"/>
+        </Transition>
+
       </li>
       <li>
-        <router-link to="/">
+        <div class="combo"
+             :style="{opacity:subMenuData[2].data.length > 0 ? '1' : '0.5', cursor : subMenuData[2].data.length > 0 ? 'pointer' : 'default'}">
           <span>
            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#3d3d3dx"><path
                d="M384-144H216q-29.7 0-50.85-21.15Q144-186.3 144-216v-168q40-2 68-29.5t28-66.5q0-39-28-66.5T144-576v-168q0-29.7 21.15-50.85Q186.3-816 216-816h168q0-40 27.77-68 27.78-28 68-28Q520-912 548-884.16q28 27.84 28 68.16h168q29.7 0 50.85 21.15Q816-773.7 816-744v168q40 0 68 27.77 28 27.78 28 68Q912-440 884.16-412q-27.84 28-68.16 28v168q0 29.7-21.15 50.85Q773.7-144 744-144H576q-2-40-29.38-68t-66.5-28q-39.12 0-66.62 28-27.5 28-29.5 68Zm-168-72h112q20-45 61.5-70.5T480-312q49 0 90.5 25.5T632-216h112v-240h72q9.6 0 16.8-7.2 7.2-7.2 7.2-16.8 0-9.6-7.2-16.8-7.2-7.2-16.8-7.2h-72v-240H504v-72q0-9.6-7.2-16.8-7.2-7.2-16.8-7.2-9.6 0-16.8 7.2-7.2 7.2-7.2 16.8v72H216v112q45 20 70.5 61.5T312-480q0 50.21-25.5 91.6Q261-347 216-328v112Zm264-264Z"/></svg>
                </span>
           <span class="txt">آموزش</span>
-          <span>
+          <span v-if="subMenuData[2].data.length > 0">
             <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17.84 9.67">
   <g id="Layer_1-2" data-name="Layer 1">
     <polyline points="17.09 .75 8.92 8.92 .75 .75"
@@ -137,7 +185,7 @@ export default {
   </g>
 </svg>
           </span>
-        </router-link>
+        </div>
       </li>
       <li>
         <router-link to="/">
@@ -155,8 +203,17 @@ export default {
         </router-link>
       </li>
     </ul>
-
     <ul>
+      <li>
+        <router-link to="/">
+          <span>
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="24px" height="24px"><path
+    d="M 13.1875 3 L 13.03125 3.8125 L 12.4375 6.78125 C 11.484375 7.15625 10.625 7.683594 9.84375 8.3125 L 6.9375 7.3125 L 6.15625 7.0625 L 5.75 7.78125 L 3.75 11.21875 L 3.34375 11.9375 L 3.9375 12.46875 L 6.1875 14.4375 C 6.105469 14.949219 6 15.460938 6 16 C 6 16.539063 6.105469 17.050781 6.1875 17.5625 L 3.9375 19.53125 L 3.34375 20.0625 L 3.75 20.78125 L 5.75 24.21875 L 6.15625 24.9375 L 6.9375 24.6875 L 9.84375 23.6875 C 10.625 24.316406 11.484375 24.84375 12.4375 25.21875 L 13.03125 28.1875 L 13.1875 29 L 18.8125 29 L 18.96875 28.1875 L 19.5625 25.21875 C 20.515625 24.84375 21.375 24.316406 22.15625 23.6875 L 25.0625 24.6875 L 25.84375 24.9375 L 26.25 24.21875 L 28.25 20.78125 L 28.65625 20.0625 L 28.0625 19.53125 L 25.8125 17.5625 C 25.894531 17.050781 26 16.539063 26 16 C 26 15.460938 25.894531 14.949219 25.8125 14.4375 L 28.0625 12.46875 L 28.65625 11.9375 L 28.25 11.21875 L 26.25 7.78125 L 25.84375 7.0625 L 25.0625 7.3125 L 22.15625 8.3125 C 21.375 7.683594 20.515625 7.15625 19.5625 6.78125 L 18.96875 3.8125 L 18.8125 3 Z M 14.8125 5 L 17.1875 5 L 17.6875 7.59375 L 17.8125 8.1875 L 18.375 8.375 C 19.511719 8.730469 20.542969 9.332031 21.40625 10.125 L 21.84375 10.53125 L 22.40625 10.34375 L 24.9375 9.46875 L 26.125 11.5 L 24.125 13.28125 L 23.65625 13.65625 L 23.8125 14.25 C 23.941406 14.820313 24 15.402344 24 16 C 24 16.597656 23.941406 17.179688 23.8125 17.75 L 23.6875 18.34375 L 24.125 18.71875 L 26.125 20.5 L 24.9375 22.53125 L 22.40625 21.65625 L 21.84375 21.46875 L 21.40625 21.875 C 20.542969 22.667969 19.511719 23.269531 18.375 23.625 L 17.8125 23.8125 L 17.6875 24.40625 L 17.1875 27 L 14.8125 27 L 14.3125 24.40625 L 14.1875 23.8125 L 13.625 23.625 C 12.488281 23.269531 11.457031 22.667969 10.59375 21.875 L 10.15625 21.46875 L 9.59375 21.65625 L 7.0625 22.53125 L 5.875 20.5 L 7.875 18.71875 L 8.34375 18.34375 L 8.1875 17.75 C 8.058594 17.179688 8 16.597656 8 16 C 8 15.402344 8.058594 14.820313 8.1875 14.25 L 8.34375 13.65625 L 7.875 13.28125 L 5.875 11.5 L 7.0625 9.46875 L 9.59375 10.34375 L 10.15625 10.53125 L 10.59375 10.125 C 11.457031 9.332031 12.488281 8.730469 13.625 8.375 L 14.1875 8.1875 L 14.3125 7.59375 Z M 16 11 C 13.25 11 11 13.25 11 16 C 11 18.75 13.25 21 16 21 C 18.75 21 21 18.75 21 16 C 21 13.25 18.75 11 16 11 Z M 16 13 C 17.667969 13 19 14.332031 19 16 C 19 17.667969 17.667969 19 16 19 C 14.332031 19 13 17.667969 13 16 C 13 14.332031 14.332031 13 16 13 Z"/></svg>
+               </span>
+          <span class="txt">تنظیمات</span>
+        </router-link>
+      </li>
       <li>
         <router-link to="/">
           <span>
@@ -181,32 +238,63 @@ export default {
 </template>
 
 <style scoped lang="scss">
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+
+.dock {
+  position: absolute;
+  top: 50%;
+  width: 15px;
+  height: 60px;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+
+  &.active {
+    transform: translateX(-220px);
+  }
+
+  &.rotated {
+    span {
+      rotate: 180deg;
+      margin-left: 0;
+      margin-right: 8px;
+    }
+  }
+
+  span {
+    transition: all 0.3s ease-in-out;
+    margin-left: 8px;
+    width: 100%;
+    display: flex;
+  }
+}
 
 aside {
   user-select: none;
   position: absolute;
   background: var(--lod);
+  min-width: 0;
   width: 0;
   opacity: 0;
-  transition: all 0.4s ease-in-out;
+  transition: all 0.2s ease-in-out;
   white-space: nowrap;
   display: flex;
   flex-direction: column;
-  box-shadow: -1px 1px 2px 0 rgba(0, 0, 0, 0.2);
-
-  .dock {
-    height: 30px;
-    width: 30px;
-    border-radius: 5px;
-    margin-right: auto;
-    margin-left: 17px;
-    margin-top: 20px;
-    background: var(--primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
+  box-shadow: -1px 1px 2px 0 var(--boxShadow);
+  visibility: hidden;
 
   h5 {
     margin: 20px 15px 20px 20px;
@@ -238,20 +326,15 @@ aside {
     position: relative;
   }
 
-  &:hover {
-    .dock {
-      visibility: visible;
-      opacity: 1;
-    }
-  }
 
   &.active {
+    min-width: 220px;
     width: 220px;
     opacity: 1;
+    visibility: visible;
   }
 
   ul {
-    overflow: hidden;
 
     &.lastLevel {
       flex: 1;
@@ -260,20 +343,25 @@ aside {
     }
 
     li {
+      position: relative;
+
+
       &:first-child {
-        a {
+        a, .combo {
           padding-top: 0;
         }
       }
 
-      a {
+      a, .combo {
         display: flex;
         align-items: center;
         padding: 12px 22px;
+        cursor: pointer;
+        overflow: hidden;
 
         span:has(svg) {
           min-width: 18px;
-          min-height: 21px;
+          min-height: 22px;
           display: flex;
           align-items: center;
 
@@ -282,6 +370,12 @@ aside {
         span {
           font-size: 0.7em;
           color: var(--lightTextColor);
+          svg {
+            fill: var(--lightTextColor);
+            rect , polyline{
+              stroke: var(--lightTextColor) !important;
+            }
+          }
           &:has(svg):last-child {
             rotate: 90deg;
           }

@@ -5,6 +5,8 @@
   outline: none;
   font-family: 'irsans-regular';
   text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+
 }
 
 li {
@@ -49,4 +51,5 @@ h1,h2,h3,h4,h5,h6 {
  --baseColor: #f4f4f4;
  --lod: #ffffff;
  --lodReversed: #000000;
+ --boxShadow: rgba(61, 61 ,61 , 0.3);
 }
