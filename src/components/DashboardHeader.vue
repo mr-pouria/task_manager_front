@@ -30,6 +30,9 @@ export default {
 
     </div>
     <div class="side">
+      <div class="item ld">
+
+      </div>
       <div class="item">
         <span>
           <svg id="b" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25.87 27.16">
@@ -136,6 +139,9 @@ header {
       display: flex;
       gap: 10px;
       position: relative;
+      &.ld span {
+        width: max-content;
+      }
 
       span {
         width: 20px;
