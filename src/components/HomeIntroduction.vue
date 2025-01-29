@@ -43,6 +43,9 @@ export default {
 </template>
 
 <style scoped lang="scss">
+* {
+  transition: all 0.2s ease-in-out;
+}
 section {
   width: 100%;
   display: flex;
