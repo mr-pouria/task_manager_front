@@ -46,20 +46,29 @@ export default {
         {
           data: [
             {
-              title: "سرویس های فعال", path: '/dashboard', key: false
+              title: "سرویس های فعال",
+              path: '/dashboard',
+              key: false,
+              nested: {
+                data: [{
+                  title: "سرویس های فعال",
+                  path: "/dashboard",
+                  nested: {data: [{title: "test", path: "/dashboard"}]}
+                }]
+              }
             },
             {
-              title: "سرویس های درحال انقضا", path: '/dashboard', key: false
+              title: "سرویس های درحال انقضا", path: '/dashboard'
             },
-            {title: "تمامی سرویس ها", path: '/dashboard', key: false}
+            {title: "تمامی سرویس ها", path: '/dashboard'}
           ]
         },
         {
-          data: [{title:"ثبت تیکت جدید" , path: "/dashboard" , key: false},
+          data: [{title: "ثبت تیکت جدید", path: "/dashboard"},
             {
-              title: "تیکت های جاری", path: '/dashboard', key: false
+              title: "تیکت های جاری", path: '/dashboard'
             },
-            {title: "تمامی تیکت ها", path: '/dashboard', key: false}
+            {title: "تمامی تیکت ها", path: '/dashboard'}
           ]
         },
         {
@@ -370,12 +379,15 @@ aside {
         span {
           font-size: 0.7em;
           color: var(--lightTextColor);
+
           svg {
             fill: var(--lightTextColor);
-            rect , polyline{
+
+            rect, polyline {
               stroke: var(--lightTextColor) !important;
             }
           }
+
           &:has(svg):last-child {
             rotate: 90deg;
           }

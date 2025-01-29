@@ -4,7 +4,7 @@ export default {
   name: "SidebarSubMenu",
   props: ["data", "current", "subKey"],
   methods: {
-    hide(param, indx) {
+    show(param, indx) {
       this.data.data.forEach((item, index) => {
         if (item.nestedKey !== undefined && index !== indx) {
           item.nestedKey = false
@@ -14,8 +14,6 @@ export default {
             i.nestedKey = false
           })
         }
-
-
       })
       param.nestedKey = !param.nestedKey
     },
@@ -39,7 +37,7 @@ export default {
       <li v-for="(item, index) in data.data" :key="index">
         <router-link :to="item.path" v-if="item.nested === undefined || item.nested.data.length <= 0">{{ item.title }}
         </router-link>
-        <div class="nested-sub-menu" @click="()=>{hide(item , index);}" v-else>
+        <div class="nested-sub-menu" @click="()=>{show(item , index);}" v-else>
           <span class="txt">{{ item.title }}</span>
           <span>
             <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17.84 9.67">

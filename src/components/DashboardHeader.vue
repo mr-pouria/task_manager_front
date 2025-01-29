@@ -72,7 +72,7 @@
     </g>
 </svg>
         </span>
-        <span class="txt">آقای فلانی</span>
+        <span class="txt">ادمین</span>
       </div>
 
     </div>
