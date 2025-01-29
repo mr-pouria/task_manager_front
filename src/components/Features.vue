@@ -65,6 +65,9 @@ export default {
 </template>
 
 <style scoped lang="scss">
+* {
+  transition: all 0.2s ease-in-out;
+}
   section {
     border-radius: 5px;
     margin: 80px auto 0 auto ;
