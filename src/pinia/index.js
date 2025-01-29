@@ -34,13 +34,15 @@ export const useStore = defineStore('store', {
                 document.body.style.setProperty("--baseColor", "#f4f4f4")
                 document.body.style.setProperty("--lod", "#ffffff")
                 document.body.style.setProperty("--lodReversed", "#000000")
+                document.body.style.setProperty("--gray", "#dadada")
                 document.body.style.setProperty("--boxShadow", "rgba(61, 61 ,61 , 0.3)")
             } else if (localStorage.getItem("theme") === "dark") {
-                document.body.style.setProperty("--primary", "#0086cc")
+                document.body.style.setProperty("--primary", "#00a6fb")
                 document.body.style.setProperty("--lightTextColor", "#ffffff")
                 document.body.style.setProperty("--baseColor", "#303030")
                 document.body.style.setProperty("--lod", "#3c3c3c")
                 document.body.style.setProperty("--lodReversed", "#ffffff")
+                document.body.style.setProperty("--gray", "#6e6e6e")
                 document.body.style.setProperty("--boxShadow", "rgba(255,255,255,0.3)")
             } else {
 

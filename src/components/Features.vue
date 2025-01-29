@@ -104,10 +104,12 @@ export default {
               font-size: 1.1em;
               font-family: "irsans-bold";
               margin-bottom: 5px;
+              color: var(--lightTextColor);
             }
             p {
               font-size: 0.7em;
               font-family: "irsans-regular";
+              color: var(--lightTextColor);
             }
           }
           .item-icon {

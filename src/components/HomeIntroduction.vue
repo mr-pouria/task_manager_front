@@ -76,6 +76,7 @@ section {
         font-size: 0.8em;
         text-align: center;
         font-family: 'irsans-regular';
+        color: var(--lightTextColor);
       }
       button {
         position: relative;
@@ -85,7 +86,7 @@ section {
         padding: 8px;
         background: var(--primary);
         border: none;
-        color: var(--lod);
+        color: #ffffff;
         font-size: 0.8em;
         cursor: pointer;
         border-radius: 5px;
