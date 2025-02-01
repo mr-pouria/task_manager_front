@@ -72,7 +72,7 @@ export default {
               </g>
             </svg>
           </button>
-        <button class="auth-btn">ورود</button>
+        <button class="auth-btn" @click="this.$router.push('/login')">ورود</button>
       </div>
     </div>
 

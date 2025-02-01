@@ -6,8 +6,13 @@
   font-family: 'irsans-regular';
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
-
+  caret-color: var(--lodReversed);
 }
+
+::selection {
+  background: var(--gray);
+}
+
 
 li {
   list-style: none;
@@ -45,8 +50,9 @@ h1,h2,h3,h4,h5,h6 {
   src: url('~@/assets/fonts/IRANSansXFaNum-DemiBold.ttf');
 }
 
-
 :root {
+
+  --test: #59c6ff;
  --primary : #00a6fb;
  --lightTextColor:#3d3d3d;
  --baseColor: #f4f4f4;
