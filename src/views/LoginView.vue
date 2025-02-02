@@ -1,21 +1,14 @@
 <script>
 import LoginBox from "@/components/LoginBox.vue";
+import SERVER from "@/server"
+import {createToast} from "mosha-vue-toastify";
 
 export default {
   name: "LoginView",
   components: {LoginBox},
   methods: {
-    numberValidation(event, value, length, type) {
-      if ((value.length === 0 && event.key !== "0" && event.key !== "Tab" && event.key !== "Enter" && type === "phone") || !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) && !(event.key === "Backspace" || event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "Tab" || event.key === "Enter") && (!event.ctrlKey) || (value.length >= length && !(event.key === "Backspace" || event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "Tab" && event.key === "Enter") && (!event.ctrlKey))) {
-        event.preventDefault()
-        return null
-      } else {
-        event.target.style.border = "none"
-      }
-    },
-    checkPhoneNumber(id) {
-      console.log(id)
-      let current = id + 1
+    flagConverter(id) {
+      let current = id
       for (let i = 0; i < this.preload_data.length; i++) {
         if (this.preload_data[i].id === current) {
           this.preload_data[i].flag = true
@@ -24,28 +17,17 @@ export default {
         }
       }
     },
-    editPhoneNumber(id) {
-      let current = id - 1
-      for (let i = 0; i < this.preload_data.length; i++) {
-        if (this.preload_data[i].id === current) {
-          this.preload_data[i].flag = true
-        } else {
-          this.preload_data[i].flag = false
-        }
-      }
-    }
-
-  },
-  data() {
-    return {
-      preload_data: [
+    reset(){
+      this.preload_data = [
         {
           id: 1,
           flag: true,
           title: "ورود | ثبت نام",
+          isNeedPreviousData:false,
+          prevId:null,
           fields: [
             {
-              title: "شماره همراه", value: "", inputType: "text", inputMode: "numeric" , onInput: (event, value) => {
+              title: "شماره همراه", name:"phoneNumber" ,maxLength:11 , value: "", inputType: "text", inputMode: "numeric" , onInput: (event, value) => {
                 this.numberValidation(event, value, 11, "phone")
               }
             }
@@ -53,8 +35,8 @@ export default {
           mainBtnFunction: 0,
           buttons: [
             {
-              title: "مرحله بعد", onClick: (id) => {
-                this.checkPhoneNumber(id)
+              title: "مرحله بعد", onClick: (mappedData) => {
+                this.checkPhoneNumber(mappedData)
               }
             },
           ],
@@ -66,9 +48,11 @@ export default {
           id: 2,
           flag: false,
           title: "ثبت نام",
+          isNeedPreviousData:true,
+          prevId:1,
           fields: [
             {
-              title: "کد پیامک شده را وارد نمایید", value: "", inputType: "text", onInput: (event, value) => {
+              title: "کد پیامک شده را وارد نمایید", name:"code" ,maxLength:6 , value: "", inputType: "text", onInput: (event, value) => {
                 this.numberValidation(event, value, 6, "code")
               }
             }
@@ -76,14 +60,14 @@ export default {
           mainBtnFunction: 0,
           buttons: [
             {
-              title: "مرحله بعد", onClick: (id) => {
-                this.checkPhoneNumber(id)
+              title: "مرحله بعد", name:"code" ,onClick: (mappedData , temp) => {
+                this.checkVCode(mappedData , temp)
               },
             },
 
             {
               title: "ویرایش شماره", styleChanging:true , onClick: (id) => {
-                this.editPhoneNumber(id)
+                this.editPhoneNumber()
               },
             },
 
@@ -96,15 +80,272 @@ export default {
           flag: false,
           title: "ثبت نام",
           fields: [
-            {title:"نام" , value: "" , inputMode: "text" , inputType: "text" , onInput:null },
-            {title:"نام خواندگی" , value: "" , inputMode: "text" , inputType: "text" , onInput:null },
-            {title:"رمز عبور" , value: "" , inputMode: "text" , inputType: "password" , onInput:null },
-            {title:"تکرار رمز عبور" , value: "" , inputMode: "text" , inputType: "password" , onInput:null }
+            {title:"نام" , value: "" ,name: "firstName", maxLength:50 ,inputMode: "text" , inputType: "text" , onInput:null },
+            {title:"نام خانوادگی" , name: "lastName", value: "" , maxLength:50 , inputMode: "text" , inputType: "text" , onInput:null },
+            {title:"رمز عبور" , name: "password", value: "" ,
+              icons:[
+                {fileName:"visibility.svg" , width:20 , height: 20 , onClick:(param , input)=>{this.togglePassword(param , input)}},
+              ]
+              , maxLength:100 , inputMode: "text" , inputType: "password" , onInput:null },
+            {title:"تکرار رمز عبور" , name:"reEnterPassword",value: "" , icons:[
+                {fileName:"visibility.svg" , width:20 , height: 20 , onClick:(param , input)=>{this.togglePassword(param , input)}},
+              ] , maxLength:100 , inputMode: "text" , inputType: "password" , onInput:null, }
+          ],
+          mainBtnFunction: 0,
+          isNeedPreviousData:true,
+          prevId: 1,
+          buttons: [
+            {title: "ثبت نام" , onClick:(data , temp)=>{this.register(data , temp)}},
+            {title: "انصراف" , onClick:()=>{this.flagConverter(1)} , styleChanging:true},
+          ]
+        },
+
+
+        {
+          id:4,
+          flag:false,
+          title:"ورود",
+          fields: [
+            {title:"رمز عبور خود را وارد نمایید",  icons:[
+                {fileName:"visibility.svg" , width:20 , height: 20 , onClick:(param , input)=>{this.togglePassword(param , input)}},
+              ] , maxLength:100 , inputType: "password" , inputMode: "text" , onInput: null}
+          ],
+          helperLinks:[
+            {title:"رمز عبور خود را فراموش کرده اید؟" , onClick:()=>{this.forgotPassword()}}
           ],
           mainBtnFunction: 0,
           buttons: [
-            {title: "ثبت نام" , onClick:()=>{}},
+            {title:"ورود" , onClick:()=>{}},
+            {title:"مرحله قبل", onClick:()=>{},styleChanging: true}
+          ]
+        },
+
+
+        {
+          id: 5,
+          flag: false,
+          title: "بازیابی رمز عبور",
+          fields: [
+            {title:"رمز عبور" ,  icons:[
+                {fileName:"visibility.svg" , width:20 , height: 20 , onClick:(param , input)=>{this.togglePassword(param , input)}},
+              ] , value: "" , maxLength:100 , inputMode: "text" , inputType: "password" , onInput:null },
+            {title:"تکرار رمز عبور" ,   icons:[
+                {fileName:"visibility.svg" , width:20 , height: 20 , onClick:(param , input)=>{this.togglePassword(param , input)}},
+              ] , value: "" , maxLength:100 , inputMode: "text" , inputType: "password" , onInput:null }
+          ],
+          mainBtnFunction: 0,
+          buttons: [
+            {title: "تایید"  ,onClick:(id)=>{this.register(id)}},
             {title: "انصراف" , onClick:()=>{} , styleChanging:true},
+          ]
+        },
+
+      ]
+    },
+    getDataFromMappedData(mapped , name){
+     return mapped.filter((tmp) => tmp.name === name)[0].value
+    },
+    numberValidation(event, value, length, type) {
+      if ((value.length === 0 && event.key !== "0" && event.key !== "Tab" && event.key !== "Enter" && type === "phone") || !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) && !(event.key === "Backspace" || event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "Tab" || event.key === "Enter") && (!event.ctrlKey) || (value.length >= length && !(event.key === "Backspace" || event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "Tab" && event.key === "Enter") && (!event.ctrlKey))) {
+        event.preventDefault()
+        return null
+      } else {
+        event.target.style.border =  "none"
+      }
+    },
+    sendVCode(phone) {
+      SERVER.sendVerificationCode(phone)
+          .then((res)=>{
+            createToast(res.data.msg)
+          })
+          .catch((err)=>{})
+    },
+    checkVCode(data , temp){
+      SERVER.checkValidationCode(this.getDataFromMappedData(temp , "phoneNumber"),this.getDataFromMappedData(data , "code"))
+          .then((res)=> {
+            if (res.data.data.canRegister) {
+              this.flagConverter(3)
+            }
+          })
+          .catch((err)=>{
+
+          })
+    },
+    checkPhoneNumber(data) {
+      try {
+        SERVER.isRegisterOrNot(this.getDataFromMappedData(data , "phoneNumber"))
+            .then((res)=>{
+              if (res.data.data.isRegistered) {
+                this.flagConverter(4)
+              } else {
+                this.flagConverter(2)
+                this.sendVCode(this.getDataFromMappedData(data , "phoneNumber"))
+              }
+
+            })
+            .catch((err)=>{
+
+            })
+
+      }catch (e) {
+        createToast("تمامی فیلد هارو پر کن")
+      }
+    },
+    editPhoneNumber() {
+      this.flagConverter(1)
+    },
+    register(data , temp){
+      if (this.getDataFromMappedData(data, "password") !== this.getDataFromMappedData(data,"reEnterPassword")) {
+        return createToast("خطا! مغایرت در رمز و تکرار رمز عبور")
+      }
+      SERVER.register(this.getDataFromMappedData(temp, "phoneNumber") , this.getDataFromMappedData(data , "firstName") , this.getDataFromMappedData(data , "lastName") , this.getDataFromMappedData(data,"password"))
+          .then((res)=>{
+
+          })
+          .catch((err)=>{
+
+          })
+    },
+    forgotPassword(){
+      this.flagConverter(1)
+      this.reset()
+    },
+    togglePassword(param , input) {
+      param.fileName === 'visibility.svg' ? param.fileName = 'visibility_off.svg' : param.fileName = 'visibility.svg'; param.fileName === 'visibility.svg' ? input.inputType = 'password' : input.inputType = 'text'
+    },
+    login(data , temp){
+      SERVER.login(this.getDataFromMappedData(temp , "phoneNumber") , this.getDataFromMappedData(data , "password"))
+          .then((res)=>{
+            console.log(res.data.msg)
+          })
+          .catch((res)=>{
+
+          })
+    }
+
+
+  },
+  data() {
+    return {
+      preload_data: [
+        {
+          id: 1,
+          flag: true,
+          title: "ورود | ثبت نام",
+          isNeedPreviousData:false,
+          prevId:null,
+          fields: [
+            {
+              title: "شماره همراه", name:"phoneNumber" ,maxLength:11 , value: "", inputType: "text", inputMode: "numeric" , onInput: (event, value) => {
+                this.numberValidation(event, value, 11, "phone")
+              }
+            }
+          ],
+          mainBtnFunction: 0,
+          buttons: [
+            {
+              title: "مرحله بعد", onClick: (mappedData) => {
+                this.checkPhoneNumber(mappedData)
+              }
+            },
+          ],
+
+        },
+
+
+        {
+          id: 2,
+          flag: false,
+          title: "ثبت نام",
+          isNeedPreviousData:true,
+          prevId:1,
+          fields: [
+            {
+              title: "کد پیامک شده را وارد نمایید", name:"code" ,maxLength:6 , value: "", inputType: "text", onInput: (event, value) => {
+                this.numberValidation(event, value, 6, "code")
+              }
+            }
+          ],
+          mainBtnFunction: 0,
+          buttons: [
+            {
+              title: "مرحله بعد", name:"code" ,onClick: (mappedData , temp) => {
+                this.checkVCode(mappedData , temp)
+              },
+            },
+
+            {
+              title: "ویرایش شماره", styleChanging:true , onClick: (id) => {
+                this.editPhoneNumber()
+              },
+            },
+
+          ]
+        },
+        {
+          id: 3,
+          flag: false,
+          title: "ثبت نام",
+          fields: [
+            {title:"نام" , value: "" ,name: "firstName", maxLength:50 ,inputMode: "text" , inputType: "text" , onInput:null },
+            {title:"نام خانوادگی" , name: "lastName", value: "" , maxLength:50 , inputMode: "text" , inputType: "text" , onInput:null },
+            {title:"رمز عبور" , name: "password", value: "" ,
+              icons:[
+                {fileName:"visibility.svg" , width:20 , height: 20 , onClick:(param , input)=>{this.togglePassword(param , input)}},
+              ]
+              , maxLength:100 , inputMode: "text" , inputType: "password" , onInput:null },
+            {title:"تکرار رمز عبور" , name:"reEnterPassword",value: "" , icons:[
+                {fileName:"visibility.svg" , width:20 , height: 20 , onClick:(param , input)=>{this.togglePassword(param , input)}},
+              ] , maxLength:100 , inputMode: "text" , inputType: "password" , onInput:null, }
+          ],
+          mainBtnFunction: 0,
+          isNeedPreviousData:true,
+          prevId: 1,
+          buttons: [
+            {title: "ثبت نام" , onClick:(data , temp)=>{this.register(data , temp)}},
+            {title: "انصراف" , onClick:()=>{this.flagConverter(1);this.reset()} , styleChanging:true},
+          ]
+        },
+
+
+        {
+          id:4,
+          flag:false,
+          title:"ورود",
+          isNeedPreviousData:true,
+          prevId: 1,
+          fields: [
+            {title:"رمز عبور خود را وارد نمایید", name:"password" ,icons:[
+                {fileName:"visibility.svg" , width:20 , height: 20 , onClick:(param , input)=>{this.togglePassword(param , input)}},
+              ] , maxLength:100 , inputType: "password" , inputMode: "text" , onInput: null}
+          ],
+          helperLinks:[
+            {title:"رمز عبور خود را فراموش کرده اید؟" , onClick:()=>{this.forgotPassword()}}
+          ],
+          mainBtnFunction: 0,
+          buttons: [
+            {title:"ورود" , onClick:(mapped,temp)=>{this.login(mapped,temp)}},
+            {title:"مرحله قبل", onClick:()=>{this.flagConverter(1);this.reset()},styleChanging: true}
+          ]
+        },
+
+
+        {
+          id: 5,
+          flag: false,
+          title: "بازیابی رمز عبور",
+          fields: [
+            {title:"رمز عبور" , name:"password" , icons:[
+                {fileName:"visibility.svg" , width:20 , height: 20 , onClick:(param , input)=>{this.togglePassword(param , input)}},
+              ] , value: "" , maxLength:100 , inputMode: "text" , inputType: "password" , onInput:null },
+            {title:"تکرار رمز عبور" , name: "reEnterPassword" , icons:[
+                {fileName:"visibility.svg" , width:20 , height: 20 , onClick:(param , input)=>{this.togglePassword(param , input)}},
+              ] , value: "" , maxLength:100 , inputMode: "text" , inputType: "password" , onInput:null }
+          ],
+          mainBtnFunction: 0,
+          buttons: [
+            {title: "تایید"  ,onClick:(id)=>{this.register(id)}},
+            {title: "انصراف" , onClick:()=>{this.flagConverter(1);this.reset()} , styleChanging:true},
           ]
         },
 
