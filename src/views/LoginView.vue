@@ -2,10 +2,16 @@
 import LoginBox from "@/components/LoginBox.vue";
 import SERVER from "@/server"
 import {createToast} from "mosha-vue-toastify";
-
+import {useStore} from "@/pinia";
 export default {
   name: "LoginView",
   components: {LoginBox},
+  setup(){
+    const store = useStore()
+
+    return {store}
+  },
+
   methods: {
     flagConverter(id) {
       let current = id
@@ -111,7 +117,7 @@ export default {
               ] , maxLength:100 , inputType: "password" , inputMode: "text" , onInput: null}
           ],
           helperLinks:[
-            {title:"رمز عبور خود را فراموش کرده اید؟" , onClick:()=>{this.forgotPassword()}}
+            {title:"رمز عبور خود را فراموش کرده اید؟" , onClick:(data , temp)=>{this.forgotPassword(data , temp)}}
           ],
           mainBtnFunction: 0,
           buttons: [
@@ -146,11 +152,9 @@ export default {
      return mapped.filter((tmp) => tmp.name === name)[0].value
     },
     numberValidation(event, value, length, type) {
-      if ((value.length === 0 && event.key !== "0" && event.key !== "Tab" && event.key !== "Enter" && type === "phone") || !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) && !(event.key === "Backspace" || event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "Tab" || event.key === "Enter") && (!event.ctrlKey) || (value.length >= length && !(event.key === "Backspace" || event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "Tab" && event.key === "Enter") && (!event.ctrlKey))) {
+      if ((value.length === 0 && event.key !== "0" && event.key !== "Tab" && event.key !== "Enter" && type === "phone") || !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) && !(event.key === "Backspace" || event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "Tab" || event.key === "Enter") && (!event.ctrlKey) && (value.length >= length && !(event.key === "Backspace" || event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "Tab" && event.key === "Enter") && (!event.ctrlKey))) {
         event.preventDefault()
         return null
-      } else {
-        event.target.style.border =  "none"
       }
     },
     sendVCode(phone) {
@@ -163,9 +167,8 @@ export default {
     checkVCode(data , temp){
       SERVER.checkValidationCode(this.getDataFromMappedData(temp , "phoneNumber"),this.getDataFromMappedData(data , "code"))
           .then((res)=> {
-            if (res.data.data.canRegister) {
-              this.flagConverter(3)
-            }
+              this.hashCode = res.data.data.hashCode
+              this.flagConverter(this.toGoAfterValidation)
           })
           .catch((err)=>{
 
@@ -198,17 +201,20 @@ export default {
       if (this.getDataFromMappedData(data, "password") !== this.getDataFromMappedData(data,"reEnterPassword")) {
         return createToast("خطا! مغایرت در رمز و تکرار رمز عبور")
       }
-      SERVER.register(this.getDataFromMappedData(temp, "phoneNumber") , this.getDataFromMappedData(data , "firstName") , this.getDataFromMappedData(data , "lastName") , this.getDataFromMappedData(data,"password"))
+      SERVER.register(this.getDataFromMappedData(temp, "phoneNumber") , this.getDataFromMappedData(data , "firstName") , this.getDataFromMappedData(data , "lastName") , this.getDataFromMappedData(data,"password") , this.hashCode)
           .then((res)=>{
-
+            localStorage.setItem("token" , res.data.data.token)
+            this.store.isAuthenticated = true
+            this.$router.push("/")
           })
           .catch((err)=>{
 
           })
     },
-    forgotPassword(){
-      this.flagConverter(1)
-      this.reset()
+    forgotPassword(data , temp){
+      this.flagConverter(2)
+      this.toGoAfterValidation = 5
+      this.sendVCode(this.getDataFromMappedData(temp , "phoneNumber"))
     },
     togglePassword(param , input) {
       param.fileName === 'visibility.svg' ? param.fileName = 'visibility_off.svg' : param.fileName = 'visibility.svg'; param.fileName === 'visibility.svg' ? input.inputType = 'password' : input.inputType = 'text'
@@ -216,9 +222,21 @@ export default {
     login(data , temp){
       SERVER.login(this.getDataFromMappedData(temp , "phoneNumber") , this.getDataFromMappedData(data , "password"))
           .then((res)=>{
-            console.log(res.data.msg)
+            this.store.isAuthenticated = true
+            localStorage.setItem("token" , res.data.data.token)
+            this.$router.push("/")
           })
           .catch((res)=>{
+
+          })
+    },
+    changeUserPassword(data , temp){
+      SERVER.changePassword(this.getDataFromMappedData(temp , "phoneNumber") , this.hashCode , this.getDataFromMappedData(data , "password"))
+          .then((res)=>{
+            this.flagConverter(1)
+            createToast(res.data.msg)
+          })
+          .catch((err)=>{
 
           })
     }
@@ -227,6 +245,8 @@ export default {
   },
   data() {
     return {
+      hashCode:null,
+      toGoAfterValidation:3,
       preload_data: [
         {
           id: 1,
@@ -244,19 +264,17 @@ export default {
           mainBtnFunction: 0,
           buttons: [
             {
-              title: "مرحله بعد", onClick: (mappedData) => {
+              title: "مرحله بعد", type:"submit" , onClick: (mappedData) => {
                 this.checkPhoneNumber(mappedData)
               }
             },
           ],
 
         },
-
-
         {
           id: 2,
           flag: false,
-          title: "ثبت نام",
+          title: "احراز هویت",
           isNeedPreviousData:true,
           prevId:1,
           fields: [
@@ -269,13 +287,13 @@ export default {
           mainBtnFunction: 0,
           buttons: [
             {
-              title: "مرحله بعد", name:"code" ,onClick: (mappedData , temp) => {
+              title: "مرحله بعد", name:"code" , type:"submit" , onClick: (mappedData , temp) => {
                 this.checkVCode(mappedData , temp)
               },
             },
 
             {
-              title: "ویرایش شماره", styleChanging:true , onClick: (id) => {
+              title: "ویرایش شماره",  type:"button" , styleChanging:true , onClick: (id) => {
                 this.editPhoneNumber()
               },
             },
@@ -302,12 +320,10 @@ export default {
           isNeedPreviousData:true,
           prevId: 1,
           buttons: [
-            {title: "ثبت نام" , onClick:(data , temp)=>{this.register(data , temp)}},
-            {title: "انصراف" , onClick:()=>{this.flagConverter(1);this.reset()} , styleChanging:true},
+            {title: "ثبت نام" , type:"submit" ,  onClick:(data , temp)=>{this.register(data , temp)}},
+            {title: "انصراف" , type:"button" ,  onClick:()=>{this.flagConverter(1);this.reset()} , styleChanging:true},
           ]
         },
-
-
         {
           id:4,
           flag:false,
@@ -320,12 +336,12 @@ export default {
               ] , maxLength:100 , inputType: "password" , inputMode: "text" , onInput: null}
           ],
           helperLinks:[
-            {title:"رمز عبور خود را فراموش کرده اید؟" , onClick:()=>{this.forgotPassword()}}
+            {title:"رمز عبور خود را فراموش کرده اید؟" , onClick:(mapped , temp)=>{this.forgotPassword(mapped , temp)}}
           ],
           mainBtnFunction: 0,
           buttons: [
-            {title:"ورود" , onClick:(mapped,temp)=>{this.login(mapped,temp)}},
-            {title:"مرحله قبل", onClick:()=>{this.flagConverter(1);this.reset()},styleChanging: true}
+            {title:"ورود" , type:"submit" ,  onClick:(mapped,temp)=>{this.login(mapped,temp)}},
+            {title:"مرحله قبل", type:"button" , onClick:()=>{this.flagConverter(1);this.reset()},styleChanging: true}
           ]
         },
 
@@ -334,6 +350,8 @@ export default {
           id: 5,
           flag: false,
           title: "بازیابی رمز عبور",
+          isNeedPreviousData:true,
+          prevId:1,
           fields: [
             {title:"رمز عبور" , name:"password" , icons:[
                 {fileName:"visibility.svg" , width:20 , height: 20 , onClick:(param , input)=>{this.togglePassword(param , input)}},
@@ -344,8 +362,8 @@ export default {
           ],
           mainBtnFunction: 0,
           buttons: [
-            {title: "تایید"  ,onClick:(id)=>{this.register(id)}},
-            {title: "انصراف" , onClick:()=>{this.flagConverter(1);this.reset()} , styleChanging:true},
+            {title: "تایید"  , type:"submit" , onClick:(mapped , temp)=>{this.changeUserPassword(mapped , temp)}},
+            {title: "انصراف" , type:"button" ,  onClick:()=>{this.flagConverter(1);this.reset()} , styleChanging:true},
           ]
         },
 

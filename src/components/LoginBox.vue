@@ -51,17 +51,17 @@ export default {
                v-model="itm.value">
       </div>
       <div class="helpers" v-if="item.helperLinks">
-        <button type="button" v-for="value in item.helperLinks" @click="value.onClick()">{{ value.title }}</button>
+        <button type="button" v-for="value in item.helperLinks" @click="value.onClick(mappedData , temp)">{{ value.title }}</button>
       </div>
       <div class="buttons">
         <button
             :style="{background:q.styleChanging ? 'transparent' : 'var(--primary)',border:q.styleChanging ? '1px solid var(--primary)':'none' , color:q.styleChanging ? 'var(--primary)':''}"
-            v-for="(q , a) in item.buttons.filter((k , c) => c !== item.mainBtnFunction)" @click="q.onClick(item.id)">
+            v-for="(q , a) in item.buttons.filter((k , c) => c !== item.mainBtnFunction)" @click="q.onClick(item.id)" :type="q.type">
           {{ q.title }}
         </button>
         <button
             :style="{background:i.styleChanging ? 'transparent' : 'var(--primary)',border:i.styleChanging ? '1px solid var(--primary)':'none' , color:i.styleChanging ? 'var(--primary)':''}"
-            v-for="(i , x) in item.buttons.filter((j , z) => z === item.mainBtnFunction)" type="submit">
+            v-for="(i , x) in item.buttons.filter((j , z) => z === item.mainBtnFunction)" :type="i.type">
           {{ i.title }}
         </button>
       </div>

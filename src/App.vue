@@ -3,15 +3,30 @@
 </template>
 
 
-<script setup>
-import {onMounted} from "vue";
+<script>
+import axios from "axios";
 import {useStore} from "@/pinia";
-const store = useStore();
-if (localStorage.getItem("theme") === undefined) {
-  localStorage.setItem("theme","light")
-}
+export default  {
+ setup(){
 
-onMounted(()=>{
-  store.setColors()
-})
+   const store = useStore();
+   if (localStorage.getItem("theme") === undefined) {
+     localStorage.setItem("theme","light")
+   }
+   return {store}
+ } ,
+  created() {
+    axios.interceptors.response.use((response)=>
+    {
+      return response
+    } , (error)=>{
+      if (error.response.status === 401) {
+        this.store.isAuthenticated = false
+        this.$router.push("/login")
+      }
+      return Promise.reject(error)
+    })
+    this.store.setColors()
+  }
+}
 </script>

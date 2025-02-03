@@ -7,7 +7,8 @@ import {defineStore} from 'pinia'
 export const useStore = defineStore('store', {
     state: ()=>({
         sidebarKey:true,
-        sidebarPinned:true
+        sidebarPinned:true,
+        isAuthenticated:false
     }),
     actions: {
         darkModeHandler(){

@@ -1,5 +1,5 @@
 import axios from "axios";
-const base_url = "http://192.168.100.241:8080/api"
+const base_url = "http://192.168.100.241:4444/api"
 export default {
  isRegisterOrNot(phone) {
      const request = axios({
@@ -41,7 +41,7 @@ export default {
      })
      return request
  },
- register(phone,fname,lname,password) {
+ register(phone,fname,lname,password,hashCode) {
      const request = axios({
          url:base_url+"/register",
          method:"POST",
@@ -52,7 +52,9 @@ export default {
              "phoneNumber":phone,
              "firstName":fname ,
              "lastName":lname,
-             "password":password
+             "password":password,
+             "hashCode":hashCode
+
          }
      })
      return request
@@ -70,5 +72,37 @@ export default {
          }
      })
      return request
- }
+ },
+ changePassword(phone , hashMap , newPassword) {
+     const request = axios({
+         url:base_url+"/resetPassword",
+         method:"POST",
+         headers:{
+             "Accept":"application/json"
+         },
+         data:{
+             "phoneNumber":phone,
+             "hashCode":hashMap,
+             "newPassword":newPassword
+         }
+     })
+     return request
+ },
+ check() {
+     const request = axios({
+         url:base_url+"/releaseNewFeature",
+
+         method:"POST",
+         headers:{
+             "Accept":"application/json",
+             "Authorization": "Bearer " + localStorage.getItem("token")
+         },
+         data:{
+             name:"123",
+             description:"123",
+             releaseDate:"123"
+         }
+     })
+     return request
+ },
 }
