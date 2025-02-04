@@ -10,14 +10,6 @@ export default {
     Features,
     HomeIntroduction,
     Header,
-  },
-  created() {
-    SERVER.check()
-        .then((res)=>{
-          console.log(res)
-        })
-        .catch((err)=>{
-        })
   }
 }
 </script>

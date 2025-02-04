@@ -1,11 +1,21 @@
 <script>
+import {Countdown} from "@/scripts/countdown";
+
 export default {
   name: "LoginBox",
   props: ["preload"],
   data() {
     return {
       mappedData: [],
-      temp: []
+      temp: [],
+      timerValue:""
+    }
+  },
+  methods:{
+    timer(){
+      new Countdown(10, "minuteBase" , (time)=>{
+        this.timerValue = time
+      })
     }
   },
   watch: {
@@ -14,6 +24,9 @@ export default {
         this.mappedData = []
         this.temp = []
         this.preload.filter((itm) => itm.flag).forEach((item) => {
+          if (item.hasTimer !== false) {
+            this.timer()
+          }
           item.fields.forEach((field) => {
             if (field.name !== undefined) {
               this.mappedData.push({name: field.name, value: field.value})
@@ -52,6 +65,10 @@ export default {
       </div>
       <div class="helpers" v-if="item.helperLinks">
         <button type="button" v-for="value in item.helperLinks" @click="value.onClick(mappedData , temp)">{{ value.title }}</button>
+      </div>
+      <div class="timer" v-if="item.hasTimer">
+        <button type="button" v-if="timerValue.value && !timerValue.isEnd">ارسال مجدد کد تایید : {{timerValue.value}}</button>
+        <button type="button" @click="item.hasTimer(temp[0]['value']);this.timer()" v-if="timerValue.isEnd">کد تایید دریافت نشد؟ ارسال مجدد </button>
       </div>
       <div class="buttons">
         <button
@@ -147,6 +164,16 @@ export default {
         &:first-child {
           margin-top: 0px;
         }
+      }
+    }
+    .timer{
+      padding-top: 3px;
+      button {
+        background: transparent;
+        border: none;
+        color: var(--primary);
+        font-size: 0.75em;
+        cursor: pointer;
       }
     }
 

@@ -6,6 +6,7 @@
 <script>
 import axios from "axios";
 import {useStore} from "@/pinia";
+import {createToast} from "mosha-vue-toastify";
 export default  {
  setup(){
 
@@ -14,12 +15,13 @@ export default  {
      localStorage.setItem("theme","light")
    }
    return {store}
- } ,
+ },
   created() {
     axios.interceptors.response.use((response)=>
     {
       return response
     } , (error)=>{
+      createToast(error.response.data.errMsg)
       if (error.response.status === 401) {
         this.store.isAuthenticated = false
         this.$router.push("/login")

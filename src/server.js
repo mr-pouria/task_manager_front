@@ -87,22 +87,5 @@ export default {
          }
      })
      return request
- },
- check() {
-     const request = axios({
-         url:base_url+"/releaseNewFeature",
-
-         method:"POST",
-         headers:{
-             "Accept":"application/json",
-             "Authorization": "Bearer " + localStorage.getItem("token")
-         },
-         data:{
-             name:"123",
-             description:"123",
-             releaseDate:"123"
-         }
-     })
-     return request
- },
+ }
 }
